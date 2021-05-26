@@ -19,25 +19,42 @@ const floorMetalTexture = textureLoader.load('/textures/concrete/broken_down_con
 const floorAmbientTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_ao.png')
 const floorRoughTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Roughness.png')
 
-const grassColorTexture = textureLoader.load('/textures/grass/color.jpg')
-const grassAmbientTexture = textureLoader.load('/textures/grass/ambientOcclusion.jpg')
-const grassNormalTexture = textureLoader.load('/textures/grass/normal.jpg')
-const grassRoughTexture = textureLoader.load('/textures/grass/roughness.jpg')
+floorColorTexture.repeat.set(8,8)
+floorAmbientTexture.repeat.set(8,8)
+floorNormalTexture.repeat.set(8,8)
+floorRoughTexture.repeat.set(8,8)
 
-grassColorTexture.repeat.set(8,8)
-grassAmbientTexture.repeat.set(8,8)
-grassNormalTexture.repeat.set(8,8)
-grassRoughTexture.repeat.set(8,8)
+floorColorTexture.wrapS = THREE.RepeatWrapping
+floorAmbientTexture.wrapS = THREE.RepeatWrapping
+floorNormalTexture.wrapS = THREE.RepeatWrapping
+floorRoughTexture.wrapS = THREE.RepeatWrapping
 
-grassColorTexture.wrapS = THREE.RepeatWrapping
-grassAmbientTexture.wrapS = THREE.RepeatWrapping
-grassNormalTexture.wrapS = THREE.RepeatWrapping
-grassRoughTexture.wrapS = THREE.RepeatWrapping
+floorColorTexture.wrapT = THREE.RepeatWrapping
+floorAmbientTexture.wrapT = THREE.RepeatWrapping
+floorNormalTexture.wrapT = THREE.RepeatWrapping
+floorRoughTexture.wrapT = THREE.RepeatWrapping
 
-grassColorTexture.wrapT = THREE.RepeatWrapping
-grassAmbientTexture.wrapT = THREE.RepeatWrapping
-grassNormalTexture.wrapT = THREE.RepeatWrapping
-grassRoughTexture.wrapT = THREE.RepeatWrapping
+
+
+// const grassColorTexture = textureLoader.load('/textures/grass/color.jpg')
+// const grassAmbientTexture = textureLoader.load('/textures/grass/ambientOcclusion.jpg')
+// const grassNormalTexture = textureLoader.load('/textures/grass/normal.jpg')
+// const grassRoughTexture = textureLoader.load('/textures/grass/roughness.jpg')
+
+// grassColorTexture.repeat.set(8,8)
+// grassAmbientTexture.repeat.set(8,8)
+// grassNormalTexture.repeat.set(8,8)
+// grassRoughTexture.repeat.set(8,8)
+
+// grassColorTexture.wrapS = THREE.RepeatWrapping
+// grassAmbientTexture.wrapS = THREE.RepeatWrapping
+// grassNormalTexture.wrapS = THREE.RepeatWrapping
+// grassRoughTexture.wrapS = THREE.RepeatWrapping
+
+// grassColorTexture.wrapT = THREE.RepeatWrapping
+// grassAmbientTexture.wrapT = THREE.RepeatWrapping
+// grassNormalTexture.wrapT = THREE.RepeatWrapping
+// grassRoughTexture.wrapT = THREE.RepeatWrapping
 
 
 // Canvas
@@ -77,10 +94,10 @@ scene.environment = environmentMap
  */
 const floorGeometry = new THREE.PlaneBufferGeometry(100,100,32,32)
 const floorMaterial = new THREE.MeshStandardMaterial({
-        map: grassColorTexture,
-        aoMap:grassAmbientTexture, 
-        normalMap: grassNormalTexture,
-        roughnessMap: grassRoughTexture,
+        map: floorColorTexture,
+        aoMap:floorAmbientTexture, 
+        normalMap: floorNormalTexture,
+        roughnessMap: floorRoughTexture,
 
 })
 const floor = new THREE.Mesh(floorGeometry, floorMaterial)
@@ -98,6 +115,15 @@ const material = new THREE.MeshStandardMaterial()
 const sphere = new THREE.Mesh(geometry, material)
 sphere.position.y = 1
 scene.add(sphere)
+
+
+
+/**
+ * Rain
+ */
+
+
+
 
 
 
