@@ -34,29 +34,7 @@ floorAmbientTexture.wrapT = THREE.RepeatWrapping
 floorNormalTexture.wrapT = THREE.RepeatWrapping
 floorRoughTexture.wrapT = THREE.RepeatWrapping
 
-
-
-// const grassColorTexture = textureLoader.load('/textures/grass/color.jpg')
-// const grassAmbientTexture = textureLoader.load('/textures/grass/ambientOcclusion.jpg')
-// const grassNormalTexture = textureLoader.load('/textures/grass/normal.jpg')
-// const grassRoughTexture = textureLoader.load('/textures/grass/roughness.jpg')
-
-// grassColorTexture.repeat.set(8,8)
-// grassAmbientTexture.repeat.set(8,8)
-// grassNormalTexture.repeat.set(8,8)
-// grassRoughTexture.repeat.set(8,8)
-
-// grassColorTexture.wrapS = THREE.RepeatWrapping
-// grassAmbientTexture.wrapS = THREE.RepeatWrapping
-// grassNormalTexture.wrapS = THREE.RepeatWrapping
-// grassRoughTexture.wrapS = THREE.RepeatWrapping
-
-// grassColorTexture.wrapT = THREE.RepeatWrapping
-// grassAmbientTexture.wrapT = THREE.RepeatWrapping
-// grassNormalTexture.wrapT = THREE.RepeatWrapping
-// grassRoughTexture.wrapT = THREE.RepeatWrapping
-
-
+const particleTexture = textureLoader.load('/textures/particles/13.png')
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
@@ -82,9 +60,9 @@ const environmentMap = cubeTextureLoader.load([
     '/textures/environmentMaps/1/nz.jpg',
 ])
 
-environmentMap.encoding = THREE.sRGBEncoding
-scene.background = environmentMap
-scene.environment = environmentMap
+// environmentMap.encoding = THREE.sRGBEncoding
+// scene.background = environmentMap
+// scene.environment = environmentMap
 
  
 
@@ -121,8 +99,62 @@ scene.add(sphere)
 /**
  * Rain
  */
+const rainParameters = {}
+rainParameters.count = 5000
+rainParameters.velocity = 0
+
+// const rainPositions = new Float32Array(rainParameters.count * 3)
+
+// const rainGeometry = new THREE.BufferGeometry()
+const rainMaterial = new THREE.PointsMaterial({
+    map:particleTexture,
+    color:'#91a3b0',
+    size:2, 
+    sizeAttenuation: true, 
+    transparent: true,
+    alphaMap: particleTexture,
+    alphaTest: 0.001,
+    blending: THREE.AdditiveBlending,
+})
+
+const rainGeometry = new THREE.Geometry()
+for(let i=0; i < rainParameters.count; i++){
+    let rainDrop = new THREE.Vector3(
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100, 
+        ) 
+        rainDrop.velocity = {};
+        rainDrop.velocity = 0;
+        rainGeometry.vertices.push(rainDrop)
+    }
+    
+const rain = new THREE.Points(rainGeometry, rainMaterial)
+
+scene.add(rain)
+
+gui.add(rainParameters, 'count').min(500).max(5000).step(10).name('rainCount').onFinishChange(()=>{
+    
+})
+
+const rainAnimation = () => 
+{  
+    rainGeometry.vertices.forEach(drop => {
+        drop.velocity -= 0.1 + Math.random() * 0.1
+        drop.y += drop.velocity
+        
+        if(drop.y < -10){
+            drop.y = 100
+            drop.velocity = -1
+        }
+
+    })
+    rainGeometry.verticesNeedUpdate = true;
+    
+}
 
 
+// console.log(rainGeometry.attributes.position)
 
 
 
@@ -193,6 +225,9 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+
+    // rain.position.y = - elapsedTime * 9.8
+    rainAnimation()
 
     // Update controls
     controls.update()
