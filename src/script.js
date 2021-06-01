@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import * as dat from 'dat.gui'
+import CANNON from 'cannon'
 
 /**
  * Loaders
@@ -12,12 +13,13 @@ const textureLoader = new THREE.TextureLoader()
 
 
 // Textures 
-const floorColorTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_albedo.png')
-const floorHeightTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Height.png')
-const floorNormalTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Normal-dx.png')
-const floorMetalTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Metallic.png')
-const floorAmbientTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_ao.png')
-const floorRoughTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Roughness.png')
+
+
+const floorColorTexture = textureLoader.load('/textures/floor/fine_grained_wood_col_1k.jpg')
+const floorNormalTexture = textureLoader.load('/textures/floor/fine_grained_wood_normal_1k.jpg')
+const floorAmbientTexture = textureLoader.load('/textures/floor/fine_grained_wood_ao_1k.jpg')
+const floorRoughTexture = textureLoader.load('/textures/floor/fine_grained_wood_rough_1k.jpg')
+
 
 floorColorTexture.repeat.set(8,8)
 floorAmbientTexture.repeat.set(8,8)
@@ -34,29 +36,7 @@ floorAmbientTexture.wrapT = THREE.RepeatWrapping
 floorNormalTexture.wrapT = THREE.RepeatWrapping
 floorRoughTexture.wrapT = THREE.RepeatWrapping
 
-
-
-// const grassColorTexture = textureLoader.load('/textures/grass/color.jpg')
-// const grassAmbientTexture = textureLoader.load('/textures/grass/ambientOcclusion.jpg')
-// const grassNormalTexture = textureLoader.load('/textures/grass/normal.jpg')
-// const grassRoughTexture = textureLoader.load('/textures/grass/roughness.jpg')
-
-// grassColorTexture.repeat.set(8,8)
-// grassAmbientTexture.repeat.set(8,8)
-// grassNormalTexture.repeat.set(8,8)
-// grassRoughTexture.repeat.set(8,8)
-
-// grassColorTexture.wrapS = THREE.RepeatWrapping
-// grassAmbientTexture.wrapS = THREE.RepeatWrapping
-// grassNormalTexture.wrapS = THREE.RepeatWrapping
-// grassRoughTexture.wrapS = THREE.RepeatWrapping
-
-// grassColorTexture.wrapT = THREE.RepeatWrapping
-// grassAmbientTexture.wrapT = THREE.RepeatWrapping
-// grassNormalTexture.wrapT = THREE.RepeatWrapping
-// grassRoughTexture.wrapT = THREE.RepeatWrapping
-
-
+const particleTexture = textureLoader.load('/textures/particles/13.png')
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
@@ -67,6 +47,21 @@ const scene = new THREE.Scene()
  * Debug
  */
 const gui = new dat.GUI()
+
+/**
+ * Physics 
+ */
+
+const world = new CANNON.World()
+world.gravity.set(0, -9.82, 0)
+
+
+
+
+
+
+
+
 
 
 /**
@@ -82,9 +77,9 @@ const environmentMap = cubeTextureLoader.load([
     '/textures/environmentMaps/1/nz.jpg',
 ])
 
-environmentMap.encoding = THREE.sRGBEncoding
-scene.background = environmentMap
-scene.environment = environmentMap
+// environmentMap.encoding = THREE.sRGBEncoding
+// scene.background = environmentMap
+// scene.environment = environmentMap
 
  
 
@@ -121,8 +116,62 @@ scene.add(sphere)
 /**
  * Rain
  */
+const rainParameters = {}
+rainParameters.count = 5000
+rainParameters.velocity = 0
+
+// const rainPositions = new Float32Array(rainParameters.count * 3)
+
+// const rainGeometry = new THREE.BufferGeometry()
+const rainMaterial = new THREE.PointsMaterial({
+    map:particleTexture,
+    color:'#91a3b0',
+    size:2, 
+    sizeAttenuation: true, 
+    transparent: true,
+    alphaMap: particleTexture,
+    alphaTest: 0.001,
+    blending: THREE.AdditiveBlending,
+})
+
+const rainGeometry = new THREE.Geometry()
+for(let i=0; i < rainParameters.count; i++){
+    let rainDrop = new THREE.Vector3(
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100, 
+        ) 
+        rainDrop.velocity = {};
+        rainDrop.velocity = 0;
+        rainGeometry.vertices.push(rainDrop)
+    }
+    
+const rain = new THREE.Points(rainGeometry, rainMaterial)
+
+scene.add(rain)
+
+gui.add(rainParameters, 'count').min(500).max(5000).step(10).name('rainCount').onFinishChange(()=>{
+    
+})
+
+const rainAnimation = () => 
+{  
+    rainGeometry.vertices.forEach(drop => {
+        drop.velocity -= 0.1 + Math.random() * 0.1
+        drop.y += drop.velocity
+        
+        if(drop.y < -10){
+            drop.y = 100
+            drop.velocity = -1
+        }
+
+    })
+    rainGeometry.verticesNeedUpdate = true;
+    
+}
 
 
+// console.log(rainGeometry.attributes.position)
 
 
 
@@ -132,7 +181,7 @@ scene.add(sphere)
  * Lights 
  */
 const directionalLight = new THREE.DirectionalLight()
-directionalLight.position.set(0,4,5)
+directionalLight.position.set(0,10,5)
 scene.add(directionalLight)
 
 
@@ -167,7 +216,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(0,5,4)
+camera.position.set(0,10,10)
 scene.add(camera)
 
 // Controls
@@ -193,6 +242,9 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
+
+    // rain.position.y = - elapsedTime * 9.8
+    rainAnimation()
 
     // Update controls
     controls.update()
