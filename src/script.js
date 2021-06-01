@@ -53,13 +53,39 @@ const gui = new dat.GUI()
  */
 
 const world = new CANNON.World()
-world.gravity.set(0, -9.82, 0)
+world.gravity.set(0, -10, 0)
 
 
+const sphereShape = new CANNON.Sphere(1)
+const sphereBody = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0,5,0),
+    shape: sphereShape
+})
+world.addBody(sphereBody)
 
+const floorShape = new CANNON.Plane()
+const floorBody = new CANNON.Body({
+    mass: 0, 
+    shape: floorShape,
+    
+})
+floorBody.quaternion.setFromAxisAngle(
+    new CANNON.Vec3(-1,0,0),
+    Math.PI * 0.5
+)
+world.addBody(floorBody)
 
-
-
+const defaultMaterial = new CANNON.Material('default')
+const defaultContactMaterial = new CANNON.ContactMaterial(
+    defaultMaterial, 
+    defaultMaterial, 
+    {
+      friction: 0.1, 
+      restitution: 0.7, 
+    }
+)
+world.defaultContactMaterial = defaultContactMaterial
 
 
 
@@ -234,17 +260,45 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 
 
+document.addEventListener('keydown', (event)=>{
+    let elapsedTime = clock.getElapsedTime()
+    if(event.key === 'w'){
+       sphereBody.position.x += (elapsedTime * 0.2)
+    }
+    if(event.key === 's'){
+        sphereBody.position.x -= (elapsedTime * 0.2)
+     }
+     if(event.key === 'd'){
+        sphereBody.position.y += (elapsedTime * 0.2)
+     }
+
+})
+
+
+
+
+
+
+
+
 /**
  * Animate
  */
 const clock = new THREE.Clock()
+let oldElapsedTime = 0
 
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
-
-    // rain.position.y = - elapsedTime * 9.8
+    const deltaTime = elapsedTime - oldElapsedTime
+    oldElapsedTime = elapsedTime
+    
+    // Rain falling
     rainAnimation()
+    
+    // Update physics world 
+    world.step(1/60, deltaTime, 3)
+    sphere.position.copy(sphereBody.position)
 
     // Update controls
     controls.update()
