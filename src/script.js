@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import * as dat from 'dat.gui'
+import CANNON from 'cannon'
 
 /**
  * Loaders
@@ -12,12 +13,13 @@ const textureLoader = new THREE.TextureLoader()
 
 
 // Textures 
-const floorColorTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_albedo.png')
-const floorHeightTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Height.png')
-const floorNormalTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Normal-dx.png')
-const floorMetalTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Metallic.png')
-const floorAmbientTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_ao.png')
-const floorRoughTexture = textureLoader.load('/textures/concrete/broken_down_concrete1_Roughness.png')
+
+
+const floorColorTexture = textureLoader.load('/textures/floor/fine_grained_wood_col_1k.jpg')
+const floorNormalTexture = textureLoader.load('/textures/floor/fine_grained_wood_normal_1k.jpg')
+const floorAmbientTexture = textureLoader.load('/textures/floor/fine_grained_wood_ao_1k.jpg')
+const floorRoughTexture = textureLoader.load('/textures/floor/fine_grained_wood_rough_1k.jpg')
+
 
 floorColorTexture.repeat.set(8,8)
 floorAmbientTexture.repeat.set(8,8)
@@ -45,6 +47,21 @@ const scene = new THREE.Scene()
  * Debug
  */
 const gui = new dat.GUI()
+
+/**
+ * Physics 
+ */
+
+const world = new CANNON.World()
+world.gravity.set(0, -9.82, 0)
+
+
+
+
+
+
+
+
 
 
 /**
@@ -164,7 +181,7 @@ const rainAnimation = () =>
  * Lights 
  */
 const directionalLight = new THREE.DirectionalLight()
-directionalLight.position.set(0,4,5)
+directionalLight.position.set(0,10,5)
 scene.add(directionalLight)
 
 
@@ -199,7 +216,7 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(0,5,4)
+camera.position.set(0,10,10)
 scene.add(camera)
 
 // Controls
