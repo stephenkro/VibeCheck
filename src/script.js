@@ -4,12 +4,14 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
 import CANNON from "cannon";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js"
 
 /**
  * Loaders
  */
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const textureLoader = new THREE.TextureLoader();
+const gltfLoader = new GLTFLoader()
 
 // Textures
 
@@ -26,22 +28,8 @@ const floorRoughTexture = textureLoader.load(
   "/textures/floor/fine_grained_wood_rough_1k.jpg"
 );
 
-floorColorTexture.repeat.set(8, 8);
-floorAmbientTexture.repeat.set(8, 8);
-floorNormalTexture.repeat.set(8, 8);
-floorRoughTexture.repeat.set(8, 8);
-
-floorColorTexture.wrapS = THREE.RepeatWrapping;
-floorAmbientTexture.wrapS = THREE.RepeatWrapping;
-floorNormalTexture.wrapS = THREE.RepeatWrapping;
-floorRoughTexture.wrapS = THREE.RepeatWrapping;
-
-floorColorTexture.wrapT = THREE.RepeatWrapping;
-floorAmbientTexture.wrapT = THREE.RepeatWrapping;
-floorNormalTexture.wrapT = THREE.RepeatWrapping;
-floorRoughTexture.wrapT = THREE.RepeatWrapping;
-
 const particleTexture = textureLoader.load("/textures/particles/13.png");
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -54,6 +42,83 @@ const scene = new THREE.Scene();
 const gui = new dat.GUI();
 
 /**
+ * Models
+ */
+
+
+// Desk area
+
+gltfLoader.load('/models/Models/GLTF format/deskCorner.glb',(gltf)=> {
+    gltf.scene.position.set(0,0,-15)
+    gltf.scene.scale.set(10,10,10)
+    scene.add(gltf.scene)
+})
+
+gltfLoader.load('/models/Models/GLTF format/chairDesk.glb',(gltf)=> {
+    gltf.scene.position.set(5.3,0,-17)
+    gltf.scene.scale.set(9.5,9.5,9.5)
+    gltf.scene.rotation.y = (Math.PI * 3) / 4 
+    scene.add(gltf.scene)
+})
+gltfLoader.load('/models/Models/GLTF format/speaker.glb',(gltf)=> {
+  gltf.scene.position.set(-3,0,-23)
+  gltf.scene.scale.set(10,10,10)
+  scene.add(gltf.scene)
+})
+
+gltfLoader.load('/models/Models/GLTF format/pottedPlant.glb',(gltf)=> {
+  gltf.scene.position.set(13,0,-23)
+  gltf.scene.scale.set(10,10,10)
+  scene.add(gltf.scene)
+})
+
+
+gltfLoader.load('/models/Models/GLTF format/computerScreen.glb',(gltf)=> {
+  gltf.scene.position.set(2,4,-23)
+  gltf.scene.scale.set(9.5,9.5,9.5)
+  
+  scene.add(gltf.scene)
+})
+
+gltfLoader.load('/models/Models/GLTF format/computerKeyboard.glb',(gltf)=> {
+  gltf.scene.position.set(2.5,4,-21)
+  gltf.scene.scale.set(9.5,9.5,9.5)
+  
+  scene.add(gltf.scene)
+})
+
+gltfLoader.load('/models/Models/GLTF format/computerMouse.glb',(gltf)=> {
+  gltf.scene.position.set(6,4,-21)
+  gltf.scene.scale.set(9.5,9.5,9.5)
+  
+  scene.add(gltf.scene)
+})
+
+
+// Lounge area
+
+gltfLoader.load('/models/Models/GLTF format/tableCoffeeGlass.glb',(gltf)=> {
+  gltf.scene.position.set(12,0,13)
+  gltf.scene.scale.set(10,10,10)
+  scene.add(gltf.scene)
+})
+
+gltfLoader.load('/models/Models/GLTF format/loungeSofaCorner.glb',(gltf)=> {
+  gltf.scene.position.set(12,0,13)
+  gltf.scene.scale.set(9.5,9.5,9.5)
+  gltf.scene.rotation.y = -(Math.PI)/ 2
+    scene.add(gltf.scene)
+})
+gltfLoader.load('/models/Models/GLTF format/loungeChairRelax.glb',(gltf)=> {
+  gltf.scene.position.set(6,0,18)
+  gltf.scene.scale.set(9.5,9.5,9.5)
+  gltf.scene.rotation.y = -(Math.PI) * 1.25
+  scene.add(gltf.scene)
+})
+
+
+
+/**
  * Physics
  */
 
@@ -63,7 +128,7 @@ world.gravity.set(0, -10, 0);
 const sphereShape = new CANNON.Sphere(1);
 const sphereBody = new CANNON.Body({
   mass: 1,
-  position: new CANNON.Vec3(0, 5, 0),
+  position: new CANNON.Vec3(-3, 5, 0),
   shape: sphereShape,
 });
 world.addBody(sphereBody);
@@ -103,11 +168,13 @@ const environmentMap = cubeTextureLoader.load([
 // environmentMap.encoding = THREE.sRGBEncoding
 // scene.background = environmentMap
 // scene.environment = environmentMap
+scene.background = new THREE.Color('#99a7ba')
+// scene.fog = new THREE.Color('#87a2c7')
 
 /**
  * Floor
  */
-const floorGeometry = new THREE.PlaneBufferGeometry(100, 100, 32, 32);
+const floorGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
 const floorMaterial = new THREE.MeshStandardMaterial({
   map: floorColorTexture,
   aoMap: floorAmbientTexture,
@@ -153,9 +220,9 @@ const rainMaterial = new THREE.PointsMaterial({
 const rainGeometry = new THREE.Geometry();
 for (let i = 0; i < rainParameters.count; i++) {
   let rainDrop = new THREE.Vector3(
-    (Math.random() - 0.5) * 100,
-    (Math.random() - 0.5) * 100,
-    (Math.random() - 0.5) * 100
+    (Math.random() - 0.5) * 75,
+    (Math.random() - 0.5) * 75,
+    (Math.random() - 0.5) * 75
   );
   rainDrop.velocity = {};
   rainDrop.velocity = 0;
@@ -166,13 +233,7 @@ const rain = new THREE.Points(rainGeometry, rainMaterial);
 
 scene.add(rain);
 
-gui
-  .add(rainParameters, "count")
-  .min(500)
-  .max(5000)
-  .step(10)
-  .name("rainCount")
-  .onFinishChange(() => {});
+
 
 const rainAnimation = () => {
   rainGeometry.vertices.forEach((drop) => {
@@ -231,7 +292,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 10, 10);
+camera.position.set(0, 10, 20);
 scene.add(camera);
 
 // Controls
