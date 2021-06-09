@@ -5,6 +5,7 @@ import gsap from "gsap";
 import * as dat from "dat.gui";
 import CANNON from "cannon";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js"
+import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
 
 /**
  * Loaders
@@ -35,6 +36,10 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
+
+// Background
+scene.background = new THREE.Color('#99a7ba')
+// scene.fog = new THREE.Color('#87a2c7')
 
 /**
  * Debug
@@ -147,29 +152,11 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   {
     friction: 0.1,
-    restitution: 0.7,
+    restitution: 0.9,
   }
 );
 world.defaultContactMaterial = defaultContactMaterial;
 
-/**
- * Environment Map
- */
-
-const environmentMap = cubeTextureLoader.load([
-  "/textures/environmentMaps/1/px.jpg",
-  "/textures/environmentMaps/1/nx.jpg",
-  "/textures/environmentMaps/1/py.jpg",
-  "/textures/environmentMaps/1/ny.jpg",
-  "/textures/environmentMaps/1/pz.jpg",
-  "/textures/environmentMaps/1/nz.jpg",
-]);
-
-// environmentMap.encoding = THREE.sRGBEncoding
-// scene.background = environmentMap
-// scene.environment = environmentMap
-scene.background = new THREE.Color('#99a7ba')
-// scene.fog = new THREE.Color('#87a2c7')
 
 /**
  * Floor
@@ -200,12 +187,23 @@ scene.add(sphere);
  * Rain
  */
 const rainParameters = {};
+rainParameters.status = false
 rainParameters.count = 5000;
 rainParameters.velocity = 0;
+rainParameters.rainControl = () => {
+   if(rainParameters.status === false){
+    scene.remove(rain)
+    rainParameters.status = true
+   }
+  else if(rainParameters.status === true){
+    scene.add(rain)
+    rainParameters.status = false
+  }
+  
+}
 
-// const rainPositions = new Float32Array(rainParameters.count * 3)
+gui.add(rainParameters, 'rainControl').name('Rain On/Off')
 
-// const rainGeometry = new THREE.BufferGeometry()
 const rainMaterial = new THREE.PointsMaterial({
   map: particleTexture,
   color: "#91a3b0",
@@ -248,7 +246,8 @@ const rainAnimation = () => {
   rainGeometry.verticesNeedUpdate = true;
 };
 
-// console.log(rainGeometry.attributes.position)
+// gui.add(rainParameters)
+
 
 /**
  * Lights
@@ -257,8 +256,9 @@ const directionalLight = new THREE.DirectionalLight();
 directionalLight.position.set(0, 10, 5);
 scene.add(directionalLight);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-// scene.add(ambientLight)
+// const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+// hemiLight.position.set( 0.5, 1, 0.75 );
+// scene.add(hemiLight);
 
 /**
  * Sizes
@@ -309,7 +309,7 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 
-// Object controls movement
+// Player controls movement
 
 document.addEventListener("keydown", (event) => {
   let elapsedTime = clock.getElapsedTime();
@@ -329,6 +329,8 @@ document.addEventListener("keydown", (event) => {
     sphereBody.position.y += 2.5;
   }
 });
+
+
 
 /**
  * Animate
