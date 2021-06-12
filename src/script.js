@@ -6,6 +6,7 @@ import * as dat from "dat.gui";
 import CANNON from "cannon";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js"
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
+import { Vector2 } from "three";
 
 /**
  * Loaders
@@ -120,6 +121,20 @@ gltfLoader.load('/models/Models/GLTF format/loungeChairRelax.glb',(gltf)=> {
   gltf.scene.rotation.y = -(Math.PI) * 1.25
   scene.add(gltf.scene)
 })
+gltfLoader.load('/models/Models/GLTF format/radio.glb',(gltf)=> {
+  gltf.scene.position.set(9,2,13)
+  gltf.scene.scale.set(8,8,8)
+  scene.add(gltf.scene)
+})
+
+// Stairway Area
+
+gltfLoader.load('/models/Models/GLTF format/stairsOpenSingle.glb',(gltf)=> {
+  gltf.scene.position.set(-15,0,15)
+  gltf.scene.scale.set(9,9,9)
+  gltf.scene.rotation.y = Math.PI / 2
+  scene.add(gltf.scene)
+})
 
 
 
@@ -128,12 +143,12 @@ gltfLoader.load('/models/Models/GLTF format/loungeChairRelax.glb',(gltf)=> {
  */
 
 const world = new CANNON.World();
-world.gravity.set(0, -10, 0);
+world.gravity.set(0, -20, 0);
 
 const sphereShape = new CANNON.Sphere(1);
 const sphereBody = new CANNON.Body({
   mass: 1,
-  position: new CANNON.Vec3(-3, 5, 0),
+  position: new CANNON.Vec3(-3, 6, 0),
   shape: sphereShape,
 });
 world.addBody(sphereBody);
@@ -146,12 +161,23 @@ const floorBody = new CANNON.Body({
 floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 world.addBody(floorBody);
 
+const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7,7,0.1))
+const secondFloorBody = new CANNON.Body({
+  mass: 0,
+  shape: secondFloorShape,
+  position: new CANNON.Vec3(-16,12,-7)
+});
+secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
+world.addBody(secondFloorBody);
+
+
+
 const defaultMaterial = new CANNON.Material("default");
 const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   defaultMaterial,
   {
-    friction: 0.1,
+    friction: 0.05,
     restitution: 0.9,
   }
 );
@@ -162,6 +188,7 @@ world.defaultContactMaterial = defaultContactMaterial;
  * Floor
  */
 const floorGeometry = new THREE.PlaneBufferGeometry(50, 50, 32, 32);
+const secondFloorGeometry = new THREE.BoxBufferGeometry(15,10,1)
 const floorMaterial = new THREE.MeshStandardMaterial({
   map: floorColorTexture,
   aoMap: floorAmbientTexture,
@@ -169,8 +196,14 @@ const floorMaterial = new THREE.MeshStandardMaterial({
   roughnessMap: floorRoughTexture,
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+const secondFloor = new THREE.Mesh(secondFloorGeometry, floorMaterial)
+secondFloor.rotation.x = -Math.PI / 2; 
+;
+secondFloor.position.set(-16,12,-7)
 floor.rotation.x = -Math.PI / 2;
+
 scene.add(floor);
+scene.add(secondFloor)
 
 /**
  *  Test Object
