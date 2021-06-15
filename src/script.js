@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import gsap from "gsap";
 import * as dat from "dat.gui";
-import CANNON from "cannon";
+import CANNON, { ContactMaterial } from "cannon";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js"
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
 import { Vector2 } from "three";
@@ -137,6 +137,17 @@ gltfLoader.load('/models/Models/GLTF format/stairsOpenSingle.glb',(gltf)=> {
 })
 
 
+/**
+ * Lights
+ */
+const directionalLight = new THREE.DirectionalLight();
+directionalLight.position.set(0, 10, 5);
+scene.add(directionalLight);
+
+const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.45 );
+hemiLight.position.set( 0.5, 1, 0.75 );
+
+
 
 /**
  * Physics
@@ -228,22 +239,36 @@ scene.add(sphere);
  * Rain
  */
 const rainParameters = {};
-rainParameters.status = false
+rainParameters.rainStatus = false
+rainParameters.sunnyStatus = false
 rainParameters.count = 5000;
 rainParameters.velocity = 0;
 rainParameters.rainControl = () => {
-   if(rainParameters.status === false){
+   if(rainParameters.rainStatus === false){
     scene.remove(rain)
-    rainParameters.status = true
+    rainParameters.rainStatus = true
    }
-  else if(rainParameters.status === true){
+  else if(rainParameters.rainStatus === true){
     scene.add(rain)
-    rainParameters.status = false
+    rainParameters.rainStatus = false
   }
   
 }
+rainParameters.sunnyControl = () => {
+  const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+  if(rainParameters.sunnyStatus === false){
+    scene.background = new THREE.Color('#fde1cc')
+    rainParameters.sunnyStatus = true
+    
+  } else {
+    scene.background = new THREE.Color('#99a7ba')
+    scene.remove(hemiLight) 
+    rainParameters.sunnyStatus = false
+  }
+}
 
 gui.add(rainParameters, 'rainControl').name('Rain On/Off')
+gui.add(rainParameters, 'sunnyControl').name('Sunny On/Off')
 
 const rainMaterial = new THREE.PointsMaterial({
   map: particleTexture,
@@ -360,8 +385,8 @@ const createBox = (width, height, depth, position) => {
 }
 
 // Controls for Interacting Objects
-gui.add(interactObj, 'createBox')
-gui.add(interactObj, 'removeBox')
+gui.add(interactObj, 'createBox').name('Add Box')
+gui.add(interactObj, 'removeBox').name('Remove Boxes')
 gui.add(interactObj, 'reset')
 
 
@@ -372,16 +397,6 @@ gui.add(interactObj, 'reset')
 
 
 
-/**
- * Lights
- */
-const directionalLight = new THREE.DirectionalLight();
-directionalLight.position.set(0, 10, 5);
-scene.add(directionalLight);
-
-// const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
-// hemiLight.position.set( 0.5, 1, 0.75 );
-// scene.add(hemiLight);
 
 /**
  * Sizes
