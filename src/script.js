@@ -161,7 +161,7 @@ const floorBody = new CANNON.Body({
 floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 world.addBody(floorBody);
 
-const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7,7,0.1))
+const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7.5,5,0.1))
 const secondFloorBody = new CANNON.Body({
   mass: 0,
   shape: secondFloorShape,
@@ -177,7 +177,7 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   defaultMaterial,
   {
-    friction: 0.05,
+    friction: 0.1,
     restitution: 0.9,
   }
 );
