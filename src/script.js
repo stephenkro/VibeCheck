@@ -143,11 +143,24 @@ gltfLoader.load('/models/Models/GLTF format/stairsOpenSingle.glb',(gltf)=> {
  */
 
 const world = new CANNON.World();
+world.broadphase = new CANNON.SAPBroadphase(world)
+world.allowSleep = true
 world.gravity.set(0, -20, 0);
+
+const defaultMaterial = new CANNON.Material("default");
+const defaultContactMaterial = new CANNON.ContactMaterial(
+  defaultMaterial,
+  defaultMaterial,
+  {
+    friction: 0.1,
+    restitution: 0.9,
+  }
+);
+world.defaultContactMaterial = defaultContactMaterial;
 
 const sphereShape = new CANNON.Sphere(1);
 const sphereBody = new CANNON.Body({
-  mass: 1,
+  mass: 2,
   position: new CANNON.Vec3(-3, 6, 0),
   shape: sphereShape,
 });
@@ -165,23 +178,14 @@ const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7.5,5,0.1))
 const secondFloorBody = new CANNON.Body({
   mass: 0,
   shape: secondFloorShape,
-  position: new CANNON.Vec3(-16,12,-7)
+  position: new CANNON.Vec3(-16,12,-7),
+  material: defaultMaterial
 });
 secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 world.addBody(secondFloorBody);
 
 
 
-const defaultMaterial = new CANNON.Material("default");
-const defaultContactMaterial = new CANNON.ContactMaterial(
-  defaultMaterial,
-  defaultMaterial,
-  {
-    friction: 0.1,
-    restitution: 0.9,
-  }
-);
-world.defaultContactMaterial = defaultContactMaterial;
 
 
 /**
@@ -196,11 +200,14 @@ const floorMaterial = new THREE.MeshStandardMaterial({
   roughnessMap: floorRoughTexture,
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;
+// floor.receiveShadow = true
+
 const secondFloor = new THREE.Mesh(secondFloorGeometry, floorMaterial)
 secondFloor.rotation.x = -Math.PI / 2; 
 ;
 secondFloor.position.set(-16,12,-7)
-floor.rotation.x = -Math.PI / 2;
+
 
 scene.add(floor);
 scene.add(secondFloor)
@@ -214,6 +221,7 @@ const material = new THREE.MeshStandardMaterial();
 
 const sphere = new THREE.Mesh(geometry, material);
 sphere.position.y = 1;
+// sphere.castShadow = true
 scene.add(sphere);
 
 /**
@@ -279,7 +287,89 @@ const rainAnimation = () => {
   rainGeometry.verticesNeedUpdate = true;
 };
 
-// gui.add(rainParameters)
+
+// Create Objects to interact 
+const interactObj = {}
+const objectsToUpdate = []
+
+interactObj.createBox = () => {
+  createBox(
+      Math.random() * 5,
+      Math.random()* 5,
+      Math.random() * 5,
+      {
+          x: (Math.random() - 0.5) * 10, 
+          y: (Math.random() * 10), 
+          z: (Math.random() - 0.5) * 10
+      }
+      
+      )
+}
+interactObj.removeBox = () => {
+  for(const object of objectsToUpdate){
+      // Remove body
+      // object.body.removeEventListener('collide', playHitSound)
+      world.removeBody(object.body)
+
+      // Remove mesh 
+      scene.remove(object.mesh)
+
+  }
+}
+interactObj.reset = () => {
+  sphereBody.position.set(0,0,0)
+}
+
+
+const boxGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
+const boxMaterial = new THREE.MeshStandardMaterial({
+    metalness: 0.3, 
+    roughness: 0.4, 
+   
+})
+
+const createBox = (width, height, depth, position) => {
+  // Three.js mesh
+  const mesh = new THREE.Mesh(
+      boxGeometry,
+      boxMaterial
+  )
+  mesh.scale.set(width, height, depth)
+  mesh.castShadow = true 
+  mesh.position.copy(position)
+  scene.add(mesh)
+
+  // Cannon.js body
+  const shape = new CANNON.Box(new CANNON.Vec3(width/2 , height/2, depth/2))
+  const body = new CANNON.Body({
+      mass:1,
+      position: new CANNON.Vec3(0,20,0),
+      shape,
+      material: defaultMaterial
+  })
+  body.position.copy(position)
+  world.addBody(body)
+
+  //  Save in objects to update
+  objectsToUpdate.push({
+      mesh:mesh,
+      body:body
+  })
+
+
+}
+
+// Controls for Interacting Objects
+gui.add(interactObj, 'createBox')
+gui.add(interactObj, 'removeBox')
+gui.add(interactObj, 'reset')
+
+
+
+
+
+
+
 
 
 /**
@@ -300,6 +390,10 @@ const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
 };
+
+
+
+
 
 window.addEventListener("resize", () => {
   // Update sizes
@@ -359,7 +453,7 @@ document.addEventListener("keydown", (event) => {
     sphereBody.position.z += 1.5;
   }
   if (event.key === "g") {
-    sphereBody.position.y += 2.5;
+    sphereBody.position.y += 3.5;
   }
 });
 
@@ -382,7 +476,10 @@ const tick = () => {
   // Update physics world
   world.step(1 / 60, deltaTime, 3);
   sphere.position.copy(sphereBody.position);
-
+  for(const object of objectsToUpdate){
+    object.mesh.position.copy(object.body.position)
+    object.mesh.quaternion.copy(object.body.quaternion)
+   }
   // Update controls
   controls.update();
 
