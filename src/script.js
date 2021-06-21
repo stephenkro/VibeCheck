@@ -185,7 +185,7 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   defaultMaterial,
   {
-    friction: 0.1,
+    friction: 0.4,
     restitution: 0.9,
   }
 );
@@ -218,7 +218,21 @@ secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI *
 world.addBody(secondFloorBody);
 
 
+const coffeeTableShape = new CANNON.Box(new CANNON.Vec3(6.5/2 , 4.5/2, 4.5/2))
+const coffeeTableBody = new CANNON.Body({
+  mass:0, 
+  shape: coffeeTableShape, 
+  position: new  CANNON.Vec3(10.5, 0, 12),
+  material: defaultMaterial
+})
 
+world.addBody(coffeeTableBody)
+
+// const table = new THREE.BoxBufferGeometry(6.5, 4.5, 4.5)
+// const tableMaterial = new THREE.MeshStandardMaterial()
+// const tableMesh = new THREE.Mesh(table, tableMaterial)
+// tableMesh.position.set(10.5, 0, 12)
+// scene.add(tableMesh)
 
 
 /**
@@ -364,7 +378,7 @@ interactObj.removeBox = () => {
   }
 }
 interactObj.reset = () => {
-  sphereBody.position.set(0,0,0)
+  sphereBody.position.set(0,1,0)
 }
 
 
