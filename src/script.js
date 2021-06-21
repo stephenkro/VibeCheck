@@ -136,6 +136,28 @@ gltfLoader.load('/models/Models/GLTF format/stairsOpenSingle.glb',(gltf)=> {
   scene.add(gltf.scene)
 })
 
+/**
+ * Audio 
+ */
+ const rainSound = new Audio('/sounds/rain-sound.wav')
+ const audioObj = {}
+ audioObj.rainSoundStatus = false
+ audioObj.rainSoundControl = () => {
+  if(audioObj.rainSoundStatus === false){
+    rainSound.play()
+    rainSound.loop = true
+    audioObj.rainSoundStatus = true
+  }
+  else if(audioObj.rainSoundStatus === true){
+    rainSound.pause()
+    audioObj.rainSoundStatus = false
+  }
+ }
+
+
+ gui.add(audioObj,'rainSoundControl').name('Rain Sound')
+
+
 
 /**
  * Lights
@@ -387,13 +409,7 @@ const createBox = (width, height, depth, position) => {
 // Controls for Interacting Objects
 gui.add(interactObj, 'createBox').name('Add Box')
 gui.add(interactObj, 'removeBox').name('Remove Boxes')
-gui.add(interactObj, 'reset')
-
-
-
-
-
-
+gui.add(interactObj, 'reset').name('Reset Position')
 
 
 
