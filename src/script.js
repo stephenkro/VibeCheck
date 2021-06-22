@@ -6,7 +6,9 @@ import * as dat from "dat.gui";
 import CANNON, { ContactMaterial } from "cannon";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js"
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls"
-import { Vector2 } from "three";
+import { TextGeometry } from "three";
+
+
 
 /**
  * Loaders
@@ -14,6 +16,7 @@ import { Vector2 } from "three";
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new GLTFLoader()
+const fontLoader = new THREE.FontLoader()
 
 // Textures
 
@@ -31,6 +34,7 @@ const floorRoughTexture = textureLoader.load(
 );
 
 const particleTexture = textureLoader.load("/textures/particles/13.png");
+const matCapTexture = textureLoader.load('/textures/matcaps/8.png')
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -215,6 +219,7 @@ const secondFloorBody = new CANNON.Body({
   material: defaultMaterial
 });
 secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
+secondFloorBody.quaternion.normalize()
 world.addBody(secondFloorBody);
 
 
@@ -228,11 +233,59 @@ const coffeeTableBody = new CANNON.Body({
 
 world.addBody(coffeeTableBody)
 
-// const table = new THREE.BoxBufferGeometry(6.5, 4.5, 4.5)
-// const tableMaterial = new THREE.MeshStandardMaterial()
-// const tableMesh = new THREE.Mesh(table, tableMaterial)
-// tableMesh.position.set(10.5, 0, 12)
-// scene.add(tableMesh)
+const stairShape = new CANNON.Box(new CANNON.Vec3(21 , 7.5, 0.5))
+const stairBody = new CANNON.Body({
+  mass: 0,
+  shape: stairShape,
+  position: new CANNON.Vec3(-18.5, 6, 7.8)
+});
+stairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 3.4);
+stairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI / 2);
+stairBody.quaternion.normalize()
+world.addBody(stairBody);
+
+
+
+
+
+
+// const stair = new THREE.BoxBufferGeometry(21, 7.5, 0.5)
+// const stairMaterial = new THREE.MeshStandardMaterial()
+// const stairMesh = new THREE.Mesh(stair, stairMaterial)
+// stairMesh.position.set(-18.5, 6, 7.8)
+// stairMesh.rotation.x = -Math.PI / 3.4
+// stairMesh.rotation.z = -Math.PI / 2
+
+
+// scene.add(stairMesh)
+
+
+/**
+ * Title Text 
+ */
+fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
+   const titleGeometry = new THREE.TextGeometry('VibeCheck', {
+     font: font, 
+     size: 10, 
+     height: 10,
+     curveSegments: 12, 
+     bevelEnabled: true,
+     bevelThickness: 0.03,
+     bevelSize: 0.02, 
+     bevelOffset: 0,
+     bevelSegements:4,
+    })
+    titleGeometry.center()
+    const titleMaterial = new THREE.MeshMatcapMaterial({
+      map: matCapTexture
+    })
+    const title = new THREE.Mesh(titleGeometry, titleMaterial)
+    title.position.set(0, 20, -50)
+    scene.add(title)
+})
+
+
+
 
 
 /**
@@ -252,8 +305,8 @@ floor.rotation.x = -Math.PI / 2;
 
 const secondFloor = new THREE.Mesh(secondFloorGeometry, floorMaterial)
 secondFloor.rotation.x = -Math.PI / 2; 
-;
 secondFloor.position.set(-16,12,-7)
+
 
 
 scene.add(floor);
@@ -486,21 +539,40 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.addEventListener("keydown", (event) => {
   let elapsedTime = clock.getElapsedTime();
   if (event.key === "w") {
-    sphereBody.position.z -= 1.5;
+    sphereBody.velocity.z -=  3.5
   }
   if (event.key === "d") {
-    sphereBody.position.x += 1.5;
+    sphereBody.velocity.x += 3.5;
   }
   if (event.key === "a") {
-    sphereBody.position.x -= 1.5;
+    sphereBody.velocity.x -= 3.5;
   }
   if (event.key === "s") {
-    sphereBody.position.z += 1.5;
+    sphereBody.velocity.z += 3.5;
   }
   if (event.key === "g") {
-    sphereBody.position.y += 3.5;
+    sphereBody.velocity.y = 15;
   }
 });
+
+// document.addEventListener("keyup", (event) => {
+//   let elapsedTime = clock.getElapsedTime();
+//   if (event.key === "w") {
+//     sphereBody.velocity.z = 0
+//   }
+//   if (event.key === "d") {
+//     sphereBody.velocity.x = 0
+//   }
+//   if (event.key === "a") {
+//     sphereBody.velocity.x = 0
+//   }
+//   if (event.key === "s") {
+//     sphereBody.velocity.z = 0
+//   }
+//   if (event.key === "g") {
+//     sphereBody.velocity.y = 0;
+//   }
+// });
 
 
 
