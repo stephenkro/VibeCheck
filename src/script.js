@@ -170,8 +170,11 @@ const directionalLight = new THREE.DirectionalLight();
 directionalLight.position.set(0, 10, 5);
 scene.add(directionalLight);
 
-const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.45 );
-hemiLight.position.set( 0.5, 1, 0.75 );
+const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.20 );
+hemiLight.position.set(0, 30, -20 );
+scene.add(hemiLight)
+// const helper = new THREE.HemisphereLightHelper( hemiLight, 5 );
+// scene.add( helper );
 
 
 
@@ -233,55 +236,61 @@ const coffeeTableBody = new CANNON.Body({
 
 world.addBody(coffeeTableBody)
 
-const stairShape = new CANNON.Box(new CANNON.Vec3(21 , 7.5, 0.5))
-const stairBody = new CANNON.Body({
+
+const wallShape = new CANNON.Plane();
+const leftWallBody = new CANNON.Body({
   mass: 0,
-  shape: stairShape,
-  position: new CANNON.Vec3(-18.5, 6, 7.8)
+  shape: wallShape,
+  position: new CANNON.Vec3(-25, 0, 0)
 });
-stairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 3.4);
-stairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI / 2);
-stairBody.quaternion.normalize()
-world.addBody(stairBody);
+leftWallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI * 0.5);
+world.addBody(leftWallBody);
+
+const frontWallBody = new CANNON.Body({
+  mass: 0,
+  shape: wallShape,
+  position: new CANNON.Vec3(0, 0, 25)
+});
+frontWallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI);
+world.addBody(frontWallBody);
+
+const rightWallBody = new CANNON.Body({
+  mass: 0,
+  shape: wallShape,
+  position: new CANNON.Vec3(25, 0, 0)
+});
+rightWallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 0.5);
+world.addBody(rightWallBody);
 
 
 
 
 
 
-// const stair = new THREE.BoxBufferGeometry(21, 7.5, 0.5)
-// const stairMaterial = new THREE.MeshStandardMaterial()
-// const stairMesh = new THREE.Mesh(stair, stairMaterial)
-// stairMesh.position.set(-18.5, 6, 7.8)
-// stairMesh.rotation.x = -Math.PI / 3.4
-// stairMesh.rotation.z = -Math.PI / 2
-
-
-// scene.add(stairMesh)
 
 
 /**
  * Title Text 
  */
 fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
-   const titleGeometry = new THREE.TextGeometry('VibeCheck', {
-     font: font, 
-     size: 10, 
-     height: 10,
-     curveSegments: 12, 
-     bevelEnabled: true,
-     bevelThickness: 0.03,
-     bevelSize: 0.02, 
-     bevelOffset: 0,
-     bevelSegements:4,
-    })
-    titleGeometry.center()
-    const titleMaterial = new THREE.MeshMatcapMaterial({
-      map: matCapTexture
-    })
-    const title = new THREE.Mesh(titleGeometry, titleMaterial)
-    title.position.set(0, 20, -50)
-    scene.add(title)
+  const titleGeometry = new THREE.TextGeometry('VibeCheck', {
+    font: font, 
+    size: 8, 
+    height: 10,
+    curveSegments: 12, 
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02, 
+    bevelOffset: 0,
+    bevelSegements:4,
+  })
+  titleGeometry.center()
+  const titleMaterial = new THREE.MeshMatcapMaterial({
+    map: matCapTexture
+  })
+  const title = new THREE.Mesh(titleGeometry, titleMaterial)
+  title.position.set(0, 30, -50)
+  scene.add(title)
 })
 
 
@@ -301,7 +310,7 @@ const floorMaterial = new THREE.MeshStandardMaterial({
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
-// floor.receiveShadow = true
+
 
 const secondFloor = new THREE.Mesh(secondFloorGeometry, floorMaterial)
 secondFloor.rotation.x = -Math.PI / 2; 
@@ -312,6 +321,30 @@ secondFloor.position.set(-16,12,-7)
 scene.add(floor);
 scene.add(secondFloor)
 
+
+// Walls
+
+const leftWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
+const wallMaterial = new THREE.MeshStandardMaterial()
+const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial)
+leftWall.rotation.y = Math.PI / 2
+leftWall.position.set(-25, 12.5 , 0)
+
+scene.add(leftWall)
+
+const frontWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
+const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial)
+frontWall.rotation.y = Math.PI 
+frontWall.position.set(0, 12.5 , 25)
+
+scene.add(frontWall)
+
+const rightWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
+const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial)
+rightWall.rotation.y = -Math.PI / 2 
+rightWall.position.set(25, 12.5 , 0)
+
+scene.add(rightWall)
 /**
  *  Test Object
  */
@@ -321,7 +354,6 @@ const material = new THREE.MeshStandardMaterial();
 
 const sphere = new THREE.Mesh(geometry, material);
 sphere.position.y = 1;
-// sphere.castShadow = true
 scene.add(sphere);
 
 /**
@@ -432,6 +464,9 @@ interactObj.removeBox = () => {
 }
 interactObj.reset = () => {
   sphereBody.position.set(0,1,0)
+  sphereBody.velocity.x = 0
+  sphereBody.velocity.y = 0
+  sphereBody.velocity.z = 0
 }
 
 
@@ -524,6 +559,9 @@ scene.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
+
+
+
 /**
  * Renderer
  */
@@ -551,30 +589,9 @@ document.addEventListener("keydown", (event) => {
     sphereBody.velocity.z += 3.5;
   }
   if (event.key === "g") {
-    sphereBody.velocity.y = 15;
+    sphereBody.velocity.y = 10;
   }
 });
-
-// document.addEventListener("keyup", (event) => {
-//   let elapsedTime = clock.getElapsedTime();
-//   if (event.key === "w") {
-//     sphereBody.velocity.z = 0
-//   }
-//   if (event.key === "d") {
-//     sphereBody.velocity.x = 0
-//   }
-//   if (event.key === "a") {
-//     sphereBody.velocity.x = 0
-//   }
-//   if (event.key === "s") {
-//     sphereBody.velocity.z = 0
-//   }
-//   if (event.key === "g") {
-//     sphereBody.velocity.y = 0;
-//   }
-// });
-
-
 
 /**
  * Animate
