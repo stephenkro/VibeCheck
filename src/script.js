@@ -34,7 +34,7 @@ const floorRoughTexture = textureLoader.load(
 );
 
 const particleTexture = textureLoader.load("/textures/particles/13.png");
-const matCapTexture = textureLoader.load('/textures/matcaps/8.png')
+const matCapTexture = textureLoader.load('/textures/matcaps/3.png')
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -140,6 +140,12 @@ gltfLoader.load('/models/Models/GLTF format/stairsOpenSingle.glb',(gltf)=> {
   scene.add(gltf.scene)
 })
 
+gltfLoader.load('/models/Models/GLTF format/lampRoundFloor.glb',(gltf)=> {
+  gltf.scene.position.set(20,0,10)
+  gltf.scene.scale.set(10,10,10)
+  scene.add(gltf.scene)
+})
+
 /**
  * Audio 
  */
@@ -173,8 +179,15 @@ scene.add(directionalLight);
 const hemiLight = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.20 );
 hemiLight.position.set(0, 30, -20 );
 scene.add(hemiLight)
-// const helper = new THREE.HemisphereLightHelper( hemiLight, 5 );
-// scene.add( helper );
+
+
+const pointLight = new THREE.PointLight(0x404040, 1.35, 100 );
+pointLight.position.set(20,8,10)
+scene.add( pointLight );
+
+const sphereSize = 1;
+const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
+scene.add( pointLightHelper );
 
 
 
@@ -325,7 +338,9 @@ scene.add(secondFloor)
 // Walls
 
 const leftWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
-const wallMaterial = new THREE.MeshStandardMaterial()
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color: new THREE.Color('#f7dc97')
+})
 const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial)
 leftWall.rotation.y = Math.PI / 2
 leftWall.position.set(-25, 12.5 , 0)
@@ -345,8 +360,9 @@ rightWall.rotation.y = -Math.PI / 2
 rightWall.position.set(25, 12.5 , 0)
 
 scene.add(rightWall)
+
 /**
- *  Test Object
+ *  Player Ball
  */
 
 const geometry = new THREE.SphereBufferGeometry(1, 16, 16);
