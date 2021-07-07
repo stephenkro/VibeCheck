@@ -10,6 +10,7 @@ import { TextGeometry } from "three";
 
 
 
+
 /**
  * Loaders
  */
@@ -36,6 +37,20 @@ const floorRoughTexture = textureLoader.load(
 const particleTexture = textureLoader.load("/textures/particles/13.png");
 const matCapTexture = textureLoader.load('/textures/matcaps/3.png')
 
+
+const environmentMapTexture = cubeTextureLoader.load([
+    '/textures/environmentMaps/3/px.png',
+    '/textures/environmentMaps/3/nx.png',
+    '/textures/environmentMaps/3/py.png',
+    '/textures/environmentMaps/3/ny.png',
+    '/textures/environmentMaps/3/pz.png',
+    '/textures/environmentMaps/3/nz.png',
+])
+
+
+
+
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -43,9 +58,12 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 // Background
-scene.background = new THREE.Color('#99a7ba')
+// scene.background = new THREE.Color('#99a7ba')
 // scene.fog = new THREE.Color('#87a2c7')
+environmentMapTexture.encoding = THREE.sRGBEncoding
+scene.background = environmentMapTexture
 
+scene.environment = environmentMapTexture
 /**
  * Debug
  */
