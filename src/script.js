@@ -57,9 +57,9 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
-Background
+// Background
 scene.background = new THREE.Color('#99a7ba')
-scene.fog = new THREE.Color('#87a2c7')
+// scene.fog = new THREE.Color('#87a2c7')
 // environmentMapTexture.encoding = THREE.sRGBEncoding
 // scene.background = environmentMapTexture
 
