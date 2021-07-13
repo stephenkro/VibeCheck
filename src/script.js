@@ -203,9 +203,7 @@ const pointLight = new THREE.PointLight(0x404040, 1.35, 100 );
 pointLight.position.set(20,8,10)
 scene.add( pointLight );
 
-const sphereSize = 1;
-const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
-scene.add( pointLightHelper );
+
 
 
 
@@ -610,20 +608,20 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 document.addEventListener("keydown", (event) => {
   let elapsedTime = clock.getElapsedTime();
-  if (event.key === "w") {
-    sphereBody.velocity.z -=  3.5
+  if (event.key === "w" || event.key === "W" ) {
+    sphereBody.velocity.z -=  2.5
   }
-  if (event.key === "d") {
-    sphereBody.velocity.x += 3.5;
+  if (event.key === "d" || event.key === "D") {
+    sphereBody.velocity.x += 2.5;
   }
-  if (event.key === "a") {
-    sphereBody.velocity.x -= 3.5;
+  if (event.key === "a" || event.key === "A") {
+    sphereBody.velocity.x -= 2.5;
   }
-  if (event.key === "s") {
-    sphereBody.velocity.z += 3.5;
+  if (event.key === "s" || event.key === "S") {
+    sphereBody.velocity.z += 2.5;
   }
-  if (event.key === "g") {
-    sphereBody.velocity.y = 10;
+  if (event.key === "j" || event.key === "J") {
+    sphereBody.velocity.y = 20;
   }
 });
 
