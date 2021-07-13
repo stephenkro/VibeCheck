@@ -222,7 +222,7 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   {
     friction: 0.4,
-    restitution: 0.9,
+    restitution: 1.1,
   }
 );
 world.defaultContactMaterial = defaultContactMaterial;
@@ -292,11 +292,75 @@ rightWallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 0
 world.addBody(rightWallBody);
 
 
+const sofaXShape = new CANNON.Box(new CANNON.Vec3(9/2, 7/2, 3/2))
+const horizontalSofaBody = new CANNON.Body({
+  mass: 0,
+  shape: sofaXShape,
+  position: new CANNON.Vec3(16.5, 0, 20)
+});
+world.addBody(horizontalSofaBody);
+
+const sofaYShape = new CANNON.Box(new CANNON.Vec3(6/2, 7/2, 3/2))
+const verticalSofaBody = new CANNON.Body({
+  mass: 0,
+  shape: sofaYShape,
+  position: new CANNON.Vec3(19, 0, 16)
+});
+verticalSofaBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI * 0.5);
+
+world.addBody(verticalSofaBody);
+
+const loungeChairShape = new CANNON.Box(new CANNON.Vec3(3.8/2, 3.8/2, 3.8/2))
+const loungeChairBody = new CANNON.Body({
+  mass: 0,
+  shape: loungeChairShape,
+  position: new CANNON.Vec3(1.8, 1, 19)
+});
+loungeChairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 1.25);
+
+world.addBody(loungeChairBody);
+
+const stairShape = new CANNON.Box(new CANNON.Vec3(7.2/2, 2/2, 0.5/2))
+const createStairPhysics = () => {
+  const stairs = []
+  let i = 0 
+  let x = -18.5
+  let y = 1
+  let z = 14
+  while(i < 11){
+    stairs[i] = new CANNON.Body({
+      mass: 0,
+      shape: stairShape,
+      position: new CANNON.Vec3(x, y, z)
+    });
+    stairs[i].quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5); 
+    y += 1.1
+    z -= 1.5
+    world.addBody(stairs[i])
+    i++
+  }
 
 
 
 
+// const createStairPhysics = () => {
+//   const stairs = []
+//   let i = 0 
+//   let x = -18.5
+//   let y = 1
+//   let z = 14
+//   while(i < 11){
+//     stairs[i] = new THREE.Mesh(stairBox, stairMaterial)
+//     stairs[i].position.set(x,y,z)
+//     stairs[i].rotation.x = Math.PI / 2
+//     y += 1.1
+//     z -= 1.5
+//     scene.add(stairs[i])
+//     i++
+//   }
+}
 
+createStairPhysics()
 
 /**
  * Title Text 
@@ -516,7 +580,7 @@ const createBox = (width, height, depth, position) => {
       boxMaterial
   )
   mesh.scale.set(width, height, depth)
-  mesh.castShadow = true 
+  
   mesh.position.copy(position)
   scene.add(mesh)
 
@@ -620,8 +684,8 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "s" || event.key === "S") {
     sphereBody.velocity.z += 2.5;
   }
-  if (event.key === "j" || event.key === "J") {
-    sphereBody.velocity.y = 20;
+  if (event.key === "g" || event.key === "G") {
+    sphereBody.velocity.y = 10;
   }
 });
 
