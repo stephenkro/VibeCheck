@@ -203,9 +203,7 @@ const pointLight = new THREE.PointLight(0x404040, 1.35, 100 );
 pointLight.position.set(20,8,10)
 scene.add( pointLight );
 
-const sphereSize = 1;
-const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
-scene.add( pointLightHelper );
+
 
 
 
@@ -224,7 +222,7 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   {
     friction: 0.4,
-    restitution: 0.9,
+    restitution: 1.1,
   }
 );
 world.defaultContactMaterial = defaultContactMaterial;
@@ -294,11 +292,75 @@ rightWallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 0
 world.addBody(rightWallBody);
 
 
+const sofaXShape = new CANNON.Box(new CANNON.Vec3(9/2, 7/2, 3/2))
+const horizontalSofaBody = new CANNON.Body({
+  mass: 0,
+  shape: sofaXShape,
+  position: new CANNON.Vec3(16.5, 0, 20)
+});
+world.addBody(horizontalSofaBody);
+
+const sofaYShape = new CANNON.Box(new CANNON.Vec3(6/2, 7/2, 3/2))
+const verticalSofaBody = new CANNON.Body({
+  mass: 0,
+  shape: sofaYShape,
+  position: new CANNON.Vec3(19, 0, 16)
+});
+verticalSofaBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), Math.PI * 0.5);
+
+world.addBody(verticalSofaBody);
+
+const loungeChairShape = new CANNON.Box(new CANNON.Vec3(3.8/2, 3.8/2, 3.8/2))
+const loungeChairBody = new CANNON.Body({
+  mass: 0,
+  shape: loungeChairShape,
+  position: new CANNON.Vec3(1.8, 1, 19)
+});
+loungeChairBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -Math.PI * 1.25);
+
+world.addBody(loungeChairBody);
+
+const stairShape = new CANNON.Box(new CANNON.Vec3(7.2/2, 2/2, 0.5/2))
+const createStairPhysics = () => {
+  const stairs = []
+  let i = 0 
+  let x = -18.5
+  let y = 1
+  let z = 14
+  while(i < 11){
+    stairs[i] = new CANNON.Body({
+      mass: 0,
+      shape: stairShape,
+      position: new CANNON.Vec3(x, y, z)
+    });
+    stairs[i].quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5); 
+    y += 1.1
+    z -= 1.5
+    world.addBody(stairs[i])
+    i++
+  }
 
 
 
 
+// const createStairPhysics = () => {
+//   const stairs = []
+//   let i = 0 
+//   let x = -18.5
+//   let y = 1
+//   let z = 14
+//   while(i < 11){
+//     stairs[i] = new THREE.Mesh(stairBox, stairMaterial)
+//     stairs[i].position.set(x,y,z)
+//     stairs[i].rotation.x = Math.PI / 2
+//     y += 1.1
+//     z -= 1.5
+//     scene.add(stairs[i])
+//     i++
+//   }
+}
 
+createStairPhysics()
 
 /**
  * Title Text 
@@ -357,7 +419,7 @@ scene.add(secondFloor)
 
 const leftWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: new THREE.Color('#f7dc97')
+  color: new THREE.Color('#bbc9c9')
 })
 const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial)
 leftWall.rotation.y = Math.PI / 2
@@ -498,9 +560,7 @@ interactObj.removeBox = () => {
 }
 interactObj.reset = () => {
   sphereBody.position.set(0,1,0)
-  sphereBody.velocity.x = 0
-  sphereBody.velocity.y = 0
-  sphereBody.velocity.z = 0
+  sphereBody.velocity.set(0,0,0)
 }
 
 
@@ -518,7 +578,7 @@ const createBox = (width, height, depth, position) => {
       boxMaterial
   )
   mesh.scale.set(width, height, depth)
-  mesh.castShadow = true 
+  
   mesh.position.copy(position)
   scene.add(mesh)
 
@@ -610,20 +670,21 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 document.addEventListener("keydown", (event) => {
   let elapsedTime = clock.getElapsedTime();
-  if (event.key === "w") {
-    sphereBody.velocity.z -=  3.5
+  if (event.key === "w" || event.key === "W" ) {
+    sphereBody.velocity.z -=  2.5
   }
-  if (event.key === "d") {
-    sphereBody.velocity.x += 3.5;
+  if (event.key === "d" || event.key === "D") {
+    sphereBody.velocity.x += 2.5;
   }
-  if (event.key === "a") {
-    sphereBody.velocity.x -= 3.5;
+  if (event.key === "a" || event.key === "A") {
+    sphereBody.velocity.x -= 2.5;
   }
-  if (event.key === "s") {
-    sphereBody.velocity.z += 3.5;
+  if (event.key === "s" || event.key === "S") {
+    sphereBody.velocity.z += 2.5;
   }
-  if (event.key === "g") {
-    sphereBody.velocity.y = 10;
+  if (event.key === "g" || event.key === "G") {
+    sphereBody.velocity.y += 5;
+
   }
 });
 
@@ -640,7 +701,7 @@ const tick = () => {
 
   // Rain falling
   rainAnimation();
-
+   
   // Update physics world
   world.step(1 / 60, deltaTime, 3);
   sphere.position.copy(sphereBody.position);
