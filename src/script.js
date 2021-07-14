@@ -419,7 +419,7 @@ scene.add(secondFloor)
 
 const leftWallGeometry = new THREE.PlaneBufferGeometry(50, 25)
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: new THREE.Color('#f7dc97')
+  color: new THREE.Color('#bbc9c9')
 })
 const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial)
 leftWall.rotation.y = Math.PI / 2
@@ -560,9 +560,7 @@ interactObj.removeBox = () => {
 }
 interactObj.reset = () => {
   sphereBody.position.set(0,1,0)
-  sphereBody.velocity.x = 0
-  sphereBody.velocity.y = 0
-  sphereBody.velocity.z = 0
+  sphereBody.velocity.set(0,0,0)
 }
 
 
@@ -685,7 +683,8 @@ document.addEventListener("keydown", (event) => {
     sphereBody.velocity.z += 2.5;
   }
   if (event.key === "g" || event.key === "G") {
-    sphereBody.velocity.y = 10;
+    sphereBody.velocity.y += 5;
+
   }
 });
 
@@ -702,7 +701,7 @@ const tick = () => {
 
   // Rain falling
   rainAnimation();
-
+   
   // Update physics world
   world.step(1 / 60, deltaTime, 3);
   sphere.position.copy(sphereBody.position);
