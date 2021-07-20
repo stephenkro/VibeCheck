@@ -214,7 +214,7 @@ scene.add( pointLight );
 const world = new CANNON.World();
 world.broadphase = new CANNON.SAPBroadphase(world)
 world.allowSleep = true
-world.gravity.set(0, -20, 0);
+world.gravity.set(0, -10, 0);
 
 const defaultMaterial = new CANNON.Material("default");
 const defaultContactMaterial = new CANNON.ContactMaterial(
@@ -222,7 +222,7 @@ const defaultContactMaterial = new CANNON.ContactMaterial(
   defaultMaterial,
   {
     friction: 0.4,
-    restitution: 1.1,
+    restitution: 0.5,
   }
 );
 world.defaultContactMaterial = defaultContactMaterial;
@@ -247,7 +247,7 @@ const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7.5,5,0.1))
 const secondFloorBody = new CANNON.Body({
   mass: 0,
   shape: secondFloorShape,
-  position: new CANNON.Vec3(-16,12,-7),
+  position: new CANNON.Vec3(-16,13,-7),
   material: defaultMaterial
 });
 secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
@@ -339,25 +339,6 @@ const createStairPhysics = () => {
     world.addBody(stairs[i])
     i++
   }
-
-
-
-
-// const createStairPhysics = () => {
-//   const stairs = []
-//   let i = 0 
-//   let x = -18.5
-//   let y = 1
-//   let z = 14
-//   while(i < 11){
-//     stairs[i] = new THREE.Mesh(stairBox, stairMaterial)
-//     stairs[i].position.set(x,y,z)
-//     stairs[i].rotation.x = Math.PI / 2
-//     y += 1.1
-//     z -= 1.5
-//     scene.add(stairs[i])
-//     i++
-//   }
 }
 
 createStairPhysics()
@@ -382,10 +363,30 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
     map: matCapTexture
   })
   const title = new THREE.Mesh(titleGeometry, titleMaterial)
-  title.position.set(0, 30, -50)
+  title.position.set(0, 22, -50)
   scene.add(title)
 })
 
+fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
+  const controlsGeometry = new THREE.TextGeometry('W/A/S/D for Movement', {
+    font: font, 
+    size: 3, 
+    height: 6,
+    curveSegments: 12, 
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02, 
+    bevelOffset: 0,
+    bevelSegements:4,
+  })
+  controlsGeometry.center()
+  const controlsMaterial = new THREE.MeshMatcapMaterial({
+    map: matCapTexture
+  })
+  const controls = new THREE.Mesh(controlsGeometry, controlsMaterial)
+  controls.position.set(0, 10, -50)
+  scene.add(controls)
+})
 
 
 
@@ -646,7 +647,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 10, 20);
+camera.position.set(0, 10, 23);
 scene.add(camera);
 
 // Controls
@@ -683,7 +684,8 @@ document.addEventListener("keydown", (event) => {
     sphereBody.velocity.z += 2.5;
   }
   if (event.key === "g" || event.key === "G") {
-    sphereBody.velocity.y += 5;
+    sphereBody.velocity.y += 8;
+    
 
   }
 });
