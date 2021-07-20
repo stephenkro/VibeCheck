@@ -247,7 +247,7 @@ const secondFloorShape = new CANNON.Box(new CANNON.Vec3(7.5,5,0.1))
 const secondFloorBody = new CANNON.Body({
   mass: 0,
   shape: secondFloorShape,
-  position: new CANNON.Vec3(-16,12,-7),
+  position: new CANNON.Vec3(-16,13,-7),
   material: defaultMaterial
 });
 secondFloorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
@@ -363,10 +363,30 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
     map: matCapTexture
   })
   const title = new THREE.Mesh(titleGeometry, titleMaterial)
-  title.position.set(0, 20, -50)
+  title.position.set(0, 22, -50)
   scene.add(title)
 })
 
+fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
+  const controlsGeometry = new THREE.TextGeometry('W/A/S/D for Movement', {
+    font: font, 
+    size: 3, 
+    height: 6,
+    curveSegments: 12, 
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.02, 
+    bevelOffset: 0,
+    bevelSegements:4,
+  })
+  controlsGeometry.center()
+  const controlsMaterial = new THREE.MeshMatcapMaterial({
+    map: matCapTexture
+  })
+  const controls = new THREE.Mesh(controlsGeometry, controlsMaterial)
+  controls.position.set(0, 10, -50)
+  scene.add(controls)
+})
 
 
 
@@ -627,7 +647,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 11, 22);
+camera.position.set(0, 10, 23);
 scene.add(camera);
 
 // Controls
