@@ -35,7 +35,7 @@ const floorRoughTexture = textureLoader.load(
 );
 
 const particleTexture = textureLoader.load("/textures/particles/13.png");
-const matCapTexture = textureLoader.load('/textures/matcaps/3.png')
+const matCapTexture = textureLoader.load('/textures/matcaps/2.png')
 
 
 const environmentMapTexture = cubeTextureLoader.load([
@@ -368,7 +368,7 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
 })
 
 fontLoader.load('/fonts/helvetiker_regular.typeface.json', function(font){
-  const controlsGeometry = new THREE.TextGeometry('W/A/S/D for Movement', {
+  const controlsGeometry = new THREE.TextGeometry('W/A/S/D/Space to Move', {
     font: font, 
     size: 3, 
     height: 6,
@@ -683,7 +683,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "s" || event.key === "S") {
     sphereBody.velocity.z += 2.5;
   }
-  if (event.key === "g" || event.key === "G") {
+  if (event.key === " " || event.key === "G") {
     sphereBody.velocity.y += 8;
     
 
